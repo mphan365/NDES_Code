@@ -1,3 +1,14 @@
+import random
+import simpy
+import functools
+from functools import partial, wraps
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import time
+import datetime
+from scipy.stats import norm
+
 strokes_per_year = 14239
 start_date = "01/01/2019"
 simulation_runtime = 5
@@ -7,6 +18,7 @@ proportion_nearest_rural = 0.95
 proportion_nearest_peripheral = 0.95
 proportion_nearest_central = 0.95
 proportion_transfer = 0.01
+proportion_transferred_requiring_CT = 0.3
 
 # initial ambulance call time distribution
 amb_call_time_q1 = 1
@@ -73,9 +85,6 @@ anigo_optimal_time_hours = 2
 acutebed_stay_median_hours = 48
 acute_bed_stay_sd_hours = 6
 
-# proportion of transferred patient that will receive repeat CT
-proportion_transferred_requiring_CT = 0.3
-
 # Calculations
 mins_per_one_stroke = (365.25 * 24 * 60) / strokes_per_year
 max_time = 365.25 * (simulation_runtime + burn_in) * 24 * 60
@@ -90,6 +99,79 @@ acutebed_stay_median_mins = acutebed_stay_median_hours*60
 acute_bed_stay_sd_mins = acute_bed_stay_sd_hours *60
 
 # ##Functions
+def travel_times(data, test_time, var = 0.1,proportion_second_closest = 0.05):
+    # Use the dataset provided - the edited pickle file has only relevant columns
+    # To view the whole dataset, use 'travel_times.pkl'
+
+    success = False
+
+    while not success: # keep checking in case of missing data
+        try:
+            random_choice = random.randint(0,9)
+            random_date = random.randint(1,100000)
+
+            ## Plus minus 10%
+            rand_variation = np.random.uniform()*2*var + (1-var)
+
+            test_datetime = datetime.datetime.strptime(test_time,'%H:%M') ##Get it in time format
+
+            random_hosp = 1 + np.random.binomial(1,proportion_second_closest)
+            time_taken = 0
+
+            if test_datetime >= datetime.datetime(1900,1,1,22,30) or test_datetime < datetime.datetime(1900,1,1,4,30):
+                if random_hosp == 1:
+                    time_taken = data.iloc[random_choice*5+4,3]*rand_variation
+                else:
+                    time_taken = data.iloc[random_choice*5+4,10]*rand_variation
+
+            elif test_datetime >= datetime.datetime(1900,1,1,4,30) or test_datetime < datetime.datetime(1900,1,1,11,00):
+                if random_hosp == 1:
+                    time_taken = data.iloc[random_choice*5,3]*rand_variation
+                else:
+                    time_taken = data.iloc[random_choice*5,10]*rand_variation
+
+            elif test_datetime >= datetime.datetime(1900,1,1,11,00) or test_datetime < datetime.datetime(1900,1,1,15,00):
+                if random_hosp == 1:
+                    time_taken = data.iloc[random_choice*5+1,3]*rand_variation
+                else:
+                    time_taken = data.iloc[random_choice*5+1,10]*rand_variation
+
+            elif test_datetime >= datetime.datetime(1900,1,1,15,00) or test_datetime < datetime.datetime(1900,1,1,19,00):
+                if random_hosp == 1:
+                    time_taken = data.iloc[random_choice*5+2,3]*rand_variation
+                else:
+                    time_taken = data.iloc[random_choice*5+2,10]*rand_variation
+
+            else:
+                if random_hosp == 1:
+                    time_taken = data.iloc[random_choice*5+3,3]*rand_variation
+                else:
+                    time_taken = data.iloc[random_choice*5+3,10]*rand_variation
+
+            if random_hosp == 1:
+                destination = data.closest_destination.iloc[random_choice*5]
+            else:
+                destination = data.second_closest_destination.iloc[random_choice*5]
+
+            time_taken = int(time_taken)
+
+            if type(destination) == str:
+                success = True
+            else:
+                continue
+
+        except ValueError: # missing data
+            continue
+
+    location = (data.origin_latitude.iloc[random_choice*5],data.origin_longitude.iloc[random_choice*5])
+    sed = data.sed_name.iloc[random_choice*5]
+    sed_type = data.type.iloc[random_choice*5]
+
+    assert (type(destination) == str)
+
+    return time_taken, destination, location, sed, sed_type
+
+
 def get_stroke_incident_time(mins_per_one_stroke=mins_per_one_stroke):
     time = 0
     while time < max_time:
