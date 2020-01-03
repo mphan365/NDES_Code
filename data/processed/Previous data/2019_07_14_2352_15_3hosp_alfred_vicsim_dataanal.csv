@@ -1,0 +1,4 @@
+,median_IQR_central_angio,median_IQR_central_non_angio,median_IQR_peripheral_angio,median_IQR_peripheral_non_angio,median_IQR_rural_angio,median_IQR_rural_non_angio,number_optimal_angio,number_delayed_angio,number_unable_angio,median_IQR_angio_optimal_and_delayed,median_IQR_angio_optimal_only,number_received_angio,number_no_angio,number_transferred_from_rural,number_transferred_from_peripheral,number_originating_central,median_IQR_rural_transport,median_IQR_peripheral_transport
+0,94.0,79.0,209.99999999976717,133.0,314.0,152.0,8124.0,804.0,1622.0,218.0,213.0,8928.0,12172.0,3274.0,6189.0,10632.0,339.0,215.0
+1,88.0,72.0,194.0,125.0,257.0,137.0,0.9099462365591398,0.09005376344086022,0.18167562724014336,191.0,188.0,,,,,,263.0,197.0
+2,103.0,85.0,233.0,144.0,409.09207303030416,176.0,,,,286.56776005396387,260.0,,,,,,466.7187535330886,277.0
