@@ -306,16 +306,7 @@ proportion_to_receive_ECR
         unixTime = start_date_unix + now * 60
         return datetime.datetime.fromtimestamp(int(unixTime)).strftime("%H")
 
-    def getDate(now):
-        unixTime = start_date_unix + now * 60
-        return datetime.datetime.fromtimestamp(int(unixTime)).strftime("%d-%m-%y")
-
-    def getDay(now):
-        unixTime = start_date_unix + now * 60
-        day = datetime.datetime.fromtimestamp(int(unixTime)).strftime("%a")
-        return day
-
-    # Victoria Specific Simulation Functions
+ # Victoria Specific Simulation Functions
     def get_hospital_of_transfer(hospital, hour):
         if hosp_data_dict == hosp_3_data_dict:
             central_hospitals = ["Austin Health", "Monash Health", "Royal Melbourne Hospital"]
